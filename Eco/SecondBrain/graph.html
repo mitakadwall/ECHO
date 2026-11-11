@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Second Brain - Visualizador de Grafo & MOCs</title>
+  <script src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: #111418;
+      color: #e0e0e0;
+      display: flex;
+      height: 100vh;
+      overflow: hidden;
+    }
+    #sidebar {
+      width: 320px;
+      background: #181c22;
+      border-right: 1px solid #2a2e36;
+      display: flex;
+      flex-direction: column;
+      z-index: 10;
+    }
+    #sidebar-header {
+      padding: 18px 20px;
+      border-bottom: 1px solid #2a2e36;
+      background: #1e2229;
+    }
+    #sidebar-header h1 {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: #70a5fd;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    #sidebar-header p {
+      font-size: 0.8rem;
+      color: #8c95a4;
+      margin-top: 4px;
+    }
+    #info-panel {
+      padding: 20px;
+      flex: 1;
+      overflow-y: auto;
+    }
+    .badge {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 12px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+    .badge-moc { background: #6b21a8; color: #e9d5ff; }
+    .badge-hub { background: #1e40af; color: #bfdbfe; }
+    .badge-concept { background: #065f46; color: #a7f3d0; }
+    .badge-project { background: #92400e; color: #fde68a; }
+    .badge-resource { background: #374151; color: #d1d5db; }
+
+    #info-title {
+      font-size: 1.25rem;
+      color: #ffffff;
+      margin-bottom: 12px;
+    }
+    #info-desc {
+      font-size: 0.9rem;
+      line-height: 1.5;
+      color: #b3bac5;
+      margin-bottom: 16px;
+    }
+    .section-title {
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #717d8e;
+      margin-bottom: 8px;
+    }
+    .links-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .links-list li a {
+      color: #60a5fa;
+      text-decoration: none;
+      font-size: 0.88rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 4px 8px;
+      border-radius: 4px;
+      background: #232730;
+      transition: all 0.2s;
+    }
+    .links-list li a:hover {
+      background: #2f3643;
+      color: #93c5fd;
+    }
+    #network-container {
+      flex: 1;
+      height: 100%;
+      position: relative;
+    }
+    #legend {
+      position: absolute;
+      bottom: 20px;
+      right: 20px;
+      background: rgba(24, 28, 34, 0.9);
+      backdrop-filter: blur(8px);
+      border: 1px solid #2a2e36;
+      border-radius: 8px;
+      padding: 12px 16px;
+      font-size: 0.8rem;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      z-index: 5;
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .legend-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
+  </style>
+</head>
+<body>
+
+  <aside id="sidebar">
+    <div id="sidebar-header">
+      <h1>🧠 Second Brain Graph</h1>
+      <p>Grafo Dinâmico de Wikilinks & MOCs</p>
+    </div>
+    <div id="info-panel">
+      <div id="badge-container"></div>
+      <h2 id="info-title">Selecione um Nó</h2>
+      <p id="info-desc">Clique em qualquer nó do grafo para visualizar seus detalhes, conexões e caminhos de navegação.</p>
+      
+      <div id="connections-section" style="display: none;">
+        <div class="section-title">Wikilinks de Saída</div>
+        <ul id="outgoing-links" class="links-list"></ul>
+
+        <div class="section-title" style="margin-top: 16px;">Backlinks (Quem referencia)</div>
+        <ul id="incoming-links" class="links-list"></ul>
+      </div>
+    </div>
+  </aside>
+
+  <main id="network-container"></main>
+
+  <div id="legend">
+    <div class="legend-item"><span class="legend-dot" style="background:#3b82f6;"></span> Central / Home</div>
+    <div class="legend-item"><span class="legend-dot" style="background:#a855f7;"></span> MOCs (Hubs)</div>
+    <div class="legend-item"><span class="legend-dot" style="background:#10b981;"></span> Atlas / Conceitos</div>
+    <div class="legend-item"><span class="legend-dot" style="background:#f59e0b;"></span> Projetos</div>
+    <div class="legend-item"><span class="legend-dot" style="background:#6b7280;"></span> Recursos & Cards</div>
+  </div>
+
+  <script>
+    const nodesData = [
+      { id: "Home", label: "Home", group: "home", desc: "Ponto de entrada do cofre com atalhos para os MOCs principais." },
+      { id: "MOC - Índice Geral", label: "MOC - Índice Geral", group: "moc_hub", desc: "Hub master conectando os três grandes ramos de conhecimento." },
+      { id: "MOC - Projetos", label: "MOC - Projetos", group: "moc", desc: "Mapa de conteúdo dedicado a projetos ativos e backlog de ideias." },
+      { id: "MOC - Conhecimento", label: "MOC - Conhecimento", group: "moc", desc: "Mapa de conteúdo que estrutura modelos mentais, frameworks e metodologias." },
+      { id: "MOC - Recursos & Referências", label: "MOC - Recursos", group: "moc", desc: "Mapa de conteúdo de ferramentas, guias e leituras de referência." },
+      { id: "Map of Content - Conceito", label: "MOC (Conceito)", group: "atlas", desc: "Explicação teórica de como MOCs funcionam sem a rigidez de pastas tradicionais." },
+      { id: "Wikilinks e Conexões Bidirecionais", label: "Wikilinks [[...]]", group: "atlas", desc: "Conceito de hiperlinks bidirecionais que constroem a malha do conhecimento." },
+      { id: "Metodologia Zettelkasten", label: "Zettelkasten", group: "atlas", desc: "Método de Luhmann para criação de notas atômicas interligadas." },
+      { id: "Metodologia PARA", label: "Método PARA", group: "atlas", desc: "Estrutura de Tiago Forte dividida em Projetos, Áreas, Recursos e Arquivos." },
+      { id: "Projeto Echo", label: "Projeto Echo", group: "project", desc: "Projeto principal de desenvolvimento em Unity." },
+      { id: "Second Brain System", label: "Second Brain System", group: "project", desc: "Implementação da infraestrutura de gestão de conhecimento." },
+      { id: "Nota Atômica - Densidade de Conexões", label: "Densidade de Conexões", group: "card", desc: "Insight atômico sobre o valor das conexões sobre o volume de notas." },
+      { id: "Guia de Ferramentas PKM", label: "Guia de PKM", group: "resource", desc: "Comparativo entre Obsidian, Foam e Logseq." },
+      { id: "Boas Práticas de Anotação", label: "Boas Práticas", group: "resource", desc: "Diretrizes para redação de notas e links consistentes." }
+    ];
+
+    const edgesData = [
+      { from: "Home", to: "MOC - Índice Geral" },
+      { from: "Home", to: "MOC - Projetos" },
+      { from: "Home", to: "MOC - Conhecimento" },
+      { from: "Home", to: "MOC - Recursos & Referências" },
+      { from: "Home", to: "Wikilinks e Conexões Bidirecionais" },
+
+      { from: "MOC - Índice Geral", to: "MOC - Projetos" },
+      { from: "MOC - Índice Geral", to: "MOC - Conhecimento" },
+      { from: "MOC - Índice Geral", to: "MOC - Recursos & Referências" },
+      { from: "MOC - Índice Geral", to: "Projeto Echo" },
+      { from: "MOC - Índice Geral", to: "Second Brain System" },
+      { from: "MOC - Índice Geral", to: "Metodologia Zettelkasten" },
+      { from: "MOC - Índice Geral", to: "Metodologia PARA" },
+
+      { from: "MOC - Projetos", to: "Projeto Echo" },
+      { from: "MOC - Projetos", to: "Second Brain System" },
+      { from: "MOC - Projetos", to: "MOC - Índice Geral" },
+      { from: "MOC - Projetos", to: "Home" },
+
+      { from: "MOC - Conhecimento", to: "Map of Content - Conceito" },
+      { from: "MOC - Conhecimento", to: "Metodologia Zettelkasten" },
+      { from: "MOC - Conhecimento", to: "Metodologia PARA" },
+      { from: "MOC - Conhecimento", to: "Wikilinks e Conexões Bidirecionais" },
+      { from: "MOC - Conhecimento", to: "MOC - Índice Geral" },
+
+      { from: "MOC - Recursos & Referências", to: "Guia de Ferramentas PKM" },
+      { from: "MOC - Recursos & Referências", to: "Boas Práticas de Anotação" },
+      { from: "MOC - Recursos & Referências", to: "MOC - Índice Geral" },
+
+      { from: "Map of Content - Conceito", to: "Wikilinks e Conexões Bidirecionais" },
+      { from: "Map of Content - Conceito", to: "MOC - Conhecimento" },
+      { from: "Map of Content - Conceito", to: "Metodologia Zettelkasten" },
+
+      { from: "Wikilinks e Conexões Bidirecionais", to: "Map of Content - Conceito" },
+      { from: "Wikilinks e Conexões Bidirecionais", to: "Second Brain System" },
+      { from: "Wikilinks e Conexões Bidirecionais", to: "MOC - Conhecimento" },
+
+      { from: "Metodologia Zettelkasten", to: "Nota Atômica - Densidade de Conexões" },
+      { from: "Metodologia Zettelkasten", to: "Wikilinks e Conexões Bidirecionais" },
+      { from: "Metodologia Zettelkasten", to: "MOC - Conhecimento" },
+
+      { from: "Metodologia PARA", to: "MOC - Projetos" },
+      { from: "Metodologia PARA", to: "MOC - Recursos & Referências" },
+      { from: "Metodologia PARA", to: "Second Brain System" },
+
+      { from: "Projeto Echo", to: "MOC - Projetos" },
+      { from: "Projeto Echo", to: "Second Brain System" },
+      { from: "Projeto Echo", to: "Boas Práticas de Anotação" },
+
+      { from: "Second Brain System", to: "Home" },
+      { from: "Second Brain System", to: "MOC - Índice Geral" },
+      { from: "Second Brain System", to: "Wikilinks e Conexões Bidirecionais" },
+      { from: "Second Brain System", to: "MOC - Projetos" },
+
+      { from: "Nota Atômica - Densidade de Conexões", to: "MOC - Conhecimento" },
+      { from: "Nota Atômica - Densidade de Conexões", to: "Metodologia Zettelkasten" },
+
+      { from: "Guia de Ferramentas PKM", to: "Boas Práticas de Anotação" },
+      { from: "Guia de Ferramentas PKM", to: "MOC - Recursos & Referências" },
+
+      { from: "Boas Práticas de Anotação", to: "Guia de Ferramentas PKM" },
+      { from: "Boas Práticas de Anotação", to: "MOC - Recursos & Referências" },
+      { from: "Boas Práticas de Anotação", to: "MOC - Índice Geral" }
+    ];
+
+    const groupStyles = {
+      home: { color: { background: "#3b82f6", border: "#60a5fa" }, font: { color: "#ffffff", size: 15, bold: true }, size: 24 },
+      moc_hub: { color: { background: "#9333ea", border: "#c084fc" }, font: { color: "#ffffff", size: 14, bold: true }, size: 22 },
+      moc: { color: { background: "#7c3aed", border: "#a78bfa" }, font: { color: "#ffffff", size: 13 }, size: 19 },
+      atlas: { color: { background: "#059669", border: "#34d399" }, font: { color: "#ffffff", size: 12 }, size: 15 },
+      project: { color: { background: "#d97706", border: "#fbbf24" }, font: { color: "#ffffff", size: 12 }, size: 15 },
+      card: { color: { background: "#4b5563", border: "#9ca3af" }, font: { color: "#ffffff", size: 11 }, size: 12 },
+      resource: { color: { background: "#4b5563", border: "#9ca3af" }, font: { color: "#ffffff", size: 12 }, size: 14 }
+    };
+
+    const container = document.getElementById("network-container");
+    const nodes = new vis.DataSet(nodesData.map(n => ({
+      ...n,
+      shape: "dot",
+      ...(groupStyles[n.group] || {})
+    })));
+
+    const edges = new vis.DataSet(edgesData.map(e => ({
+      from: e.from,
+      to: e.to,
+      arrows: { to: { enabled: true, scaleFactor: 0.5 } },
+      color: { color: "rgba(148, 163, 184, 0.25)", highlight: "#60a5fa" },
+      smooth: { type: "continuous" }
+    })));
+
+    const data = { nodes, edges };
+    const options = {
+      physics: {
+        solver: "forceAtlas2Based",
+        forceAtlas2Based: {
+          gravitationalConstant: -40,
+          centralGravity: 0.008,
+          springLength: 90,
+          springConstant: 0.08
+        },
+        maxVelocity: 50,
+        minVelocity: 0.1,
+        stabilization: { iterations: 150 }
+      },
+      interaction: {
+        hover: true,
+        tooltipDelay: 200
+      }
+    };
+
+    const network = new vis.Network(container, data, options);
+
+    function selectNodeById(nodeId) {
+      const node = nodesData.find(n => n.id === nodeId);
+      if (!node) return;
+
+      document.getElementById("badge-container").innerHTML = `<span class="badge badge-${node.group}">${node.group.toUpperCase()}</span>`;
+      document.getElementById("info-title").innerText = node.id;
+      document.getElementById("info-desc").innerText = node.desc || "Sem descrição.";
+
+      const outgoing = edgesData.filter(e => e.from === nodeId).map(e => e.to);
+      const incoming = edgesData.filter(e => e.to === nodeId).map(e => e.from);
+
+      const outList = document.getElementById("outgoing-links");
+      const inList = document.getElementById("incoming-links");
+
+      outList.innerHTML = outgoing.length 
+        ? outgoing.map(target => `<li><a href="#" onclick="selectAndFocus('${target}'); return false;">→ [[${target}]]</a></li>`).join("")
+        : "<li style='color:#6b7280; font-size:0.8rem;'>Nenhum link de saída</li>";
+
+      inList.innerHTML = incoming.length
+        ? incoming.map(src => `<li><a href="#" onclick="selectAndFocus('${src}'); return false;">← [[${src}]]</a></li>`).join("")
+        : "<li style='color:#6b7280; font-size:0.8rem;'>Nenhum backlink</li>";
+
+      document.getElementById("connections-section").style.display = "block";
+    }
+
+    window.selectAndFocus = function(nodeId) {
+      network.selectNodes([nodeId]);
+      network.focus(nodeId, { scale: 1.2, animation: { duration: 500 } });
+      selectNodeById(nodeId);
+    };
+
+    network.on("click", function(params) {
+      if (params.nodes.length > 0) {
+        selectNodeById(params.nodes[0]);
+      }
+    });
+
+    // Iniciar selecionando o nó central
+    selectNodeById("MOC - Índice Geral");
+  </script>
+</body>
+</html>
