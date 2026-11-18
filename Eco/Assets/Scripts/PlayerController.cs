@@ -6,6 +6,7 @@ namespace Eco.Player
     /// <summary>
     /// First-person character controller using CharacterController and the new Input System
     /// (Keyboard.current / Mouse.current) paired with a Cinemachine camera root.
+    /// Supports Double Jump and clean extension hooks for Dash, Wall Run, and Grabhook.
     /// </summary>
     [RequireComponent(typeof(CharacterController))]
     public class PlayerController : MonoBehaviour
@@ -14,6 +15,8 @@ namespace Eco.Player
         [SerializeField] private float walkSpeed = 5.0f;
         [SerializeField] private float sprintSpeed = 8.5f;
         [SerializeField] private float jumpHeight = 1.5f;
+        [SerializeField] private float doubleJumpHeight = 1.4f;
+        [SerializeField] private int maxAirJumps = 1;
         [SerializeField] private float gravity = -19.62f;
 
         [Header("Look Settings")]
@@ -21,14 +24,29 @@ namespace Eco.Player
         [SerializeField] private float mouseSensitivity = 0.15f;
         [SerializeField] private float minPitch = -85.0f;
         [SerializeField] private float maxPitch = 85.0f;
+        [SerializeField] private float cameraRollSpeed = 10.0f;
 
         private CharacterController characterController;
         private Vector3 velocity;
         private float pitch;
+        private float currentRoll;
+        private float targetRoll;
+        private int airJumpsRemaining;
+        private int movementOverrideCount;
+
+        public CharacterController CharacterController => characterController;
+        public Transform CameraRoot => cameraRoot;
+        public bool IsGrounded => characterController != null && characterController.isGrounded;
+        public bool IsMovementOverridden => movementOverrideCount > 0;
+        public float Gravity => gravity;
+        public Vector3 Velocity => velocity;
+        public Vector2 CurrentMoveInput { get; private set; }
+        public Vector3 PlanarMoveDirection { get; private set; }
 
         private void Awake()
         {
             characterController = GetComponent<CharacterController>();
+            airJumpsRemaining = maxAirJumps;
             SetCursorLocked(true);
         }
 
@@ -36,7 +54,12 @@ namespace Eco.Player
         {
             HandleCursorToggle();
             HandleMouseLook();
-            HandleMovement();
+            ReadMoveInput();
+
+            if (!IsMovementOverridden)
+            {
+                HandleMovement();
+            }
         }
 
         private void HandleCursorToggle()
@@ -58,29 +81,28 @@ namespace Eco.Player
 
         private void HandleMouseLook()
         {
-            if (Mouse.current == null || Cursor.lockState != CursorLockMode.Locked) return;
+            if (Mouse.current != null && Cursor.lockState == CursorLockMode.Locked)
+            {
+                Vector2 mouseDelta = Mouse.current.delta.ReadValue() * mouseSensitivity;
+                transform.Rotate(Vector3.up * mouseDelta.x);
+                pitch = Mathf.Clamp(pitch - mouseDelta.y, minPitch, maxPitch);
+            }
 
-            Vector2 mouseDelta = Mouse.current.delta.ReadValue() * mouseSensitivity;
+            currentRoll = Mathf.Lerp(currentRoll, targetRoll, Time.deltaTime * cameraRollSpeed);
 
-            // Yaw (horizontal) on player body
-            transform.Rotate(Vector3.up * mouseDelta.x);
-
-            // Pitch (vertical) on camera root
-            pitch = Mathf.Clamp(pitch - mouseDelta.y, minPitch, maxPitch);
             if (cameraRoot != null)
             {
-                cameraRoot.localRotation = Quaternion.Euler(pitch, 0f, 0f);
+                cameraRoot.localRotation = Quaternion.Euler(pitch, 0f, currentRoll);
             }
         }
 
-        private void HandleMovement()
+        private void ReadMoveInput()
         {
-            if (Keyboard.current == null) return;
-
-            bool isGrounded = characterController.isGrounded;
-            if (isGrounded && velocity.y < 0f)
+            if (Keyboard.current == null)
             {
-                velocity.y = -2f;
+                CurrentMoveInput = Vector2.zero;
+                PlanarMoveDirection = Vector3.zero;
+                return;
             }
 
             Vector2 inputVector = Vector2.zero;
@@ -94,19 +116,79 @@ namespace Eco.Player
                 inputVector.Normalize();
             }
 
+            CurrentMoveInput = inputVector;
+            PlanarMoveDirection = transform.right * inputVector.x + transform.forward * inputVector.y;
+        }
+
+        private void HandleMovement()
+        {
+            if (Keyboard.current == null) return;
+
+            bool isGrounded = characterController.isGrounded;
+            if (isGrounded)
+            {
+                if (velocity.y < 0f)
+                {
+                    velocity.y = -2f;
+                }
+                airJumpsRemaining = maxAirJumps;
+            }
+
             bool isSprinting = Keyboard.current.leftShiftKey.isPressed;
             float currentSpeed = isSprinting ? sprintSpeed : walkSpeed;
 
-            Vector3 move = transform.right * inputVector.x + transform.forward * inputVector.y;
-            characterController.Move(move * (currentSpeed * Time.deltaTime));
+            characterController.Move(PlanarMoveDirection * (currentSpeed * Time.deltaTime));
 
-            if (Keyboard.current.spaceKey.wasPressedThisFrame && isGrounded)
+            if (Keyboard.current.spaceKey.wasPressedThisFrame)
             {
-                velocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity);
+                if (isGrounded)
+                {
+                    velocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity);
+                }
+                else if (airJumpsRemaining > 0)
+                {
+                    airJumpsRemaining--;
+                    velocity.y = Mathf.Sqrt(doubleJumpHeight * -2f * gravity);
+                }
             }
 
             velocity.y += gravity * Time.deltaTime;
             characterController.Move(velocity * Time.deltaTime);
+        }
+
+        public void BeginMovementOverride()
+        {
+            movementOverrideCount++;
+        }
+
+        public void EndMovementOverride()
+        {
+            movementOverrideCount = Mathf.Max(0, movementOverrideCount - 1);
+        }
+
+        public void SetVerticalVelocity(float yVelocity)
+        {
+            velocity.y = yVelocity;
+        }
+
+        public void SetVelocity(Vector3 newVelocity)
+        {
+            velocity = newVelocity;
+        }
+
+        public void ResetAirJumps()
+        {
+            airJumpsRemaining = maxAirJumps;
+        }
+
+        public void SetCameraRoll(float rollDegrees)
+        {
+            targetRoll = rollDegrees;
+        }
+
+        public CollisionFlags MoveCharacter(Vector3 motion)
+        {
+            return characterController.Move(motion);
         }
     }
 }
