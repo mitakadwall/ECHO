@@ -13,6 +13,15 @@ namespace Eco.Player
         [Header("References")]
         [SerializeField] private Transform hookOrigin;
         [SerializeField] private LineRenderer cableRenderer;
+        [SerializeField] private Transform grabhookVisual;
+        [SerializeField] private Animator grabhookAnimator;
+        [SerializeField] private bool hideLineWhenUsing3DVisual = true;
+
+        private static readonly int FireHash = Animator.StringToHash("Fire");
+        private static readonly int RetractHash = Animator.StringToHash("Retract");
+        private static readonly int IsPullingHash = Animator.StringToHash("IsPulling");
+
+        private Quaternion grabhookRestLocalRot;
 
         [Header("Hook Settings")]
         [SerializeField] private LayerMask hookableLayer = ~0;
@@ -51,6 +60,15 @@ namespace Eco.Player
                 cableRenderer.positionCount = 2;
                 cableRenderer.enabled = false;
             }
+
+            if (grabhookVisual != null)
+            {
+                grabhookRestLocalRot = grabhookVisual.localRotation;
+                if (grabhookAnimator == null)
+                {
+                    grabhookAnimator = grabhookVisual.GetComponentInChildren<Animator>();
+                }
+            }
         }
 
         private void OnDisable()
@@ -67,6 +85,14 @@ namespace Eco.Player
             {
                 UpdatePull();
                 return;
+            }
+
+            if (grabhookVisual != null)
+            {
+                grabhookVisual.localRotation = Quaternion.Slerp(
+                    grabhookVisual.localRotation,
+                    grabhookRestLocalRot,
+                    Time.deltaTime * 12f);
             }
 
             if (Mouse.current == null || Cursor.lockState != CursorLockMode.Locked) return;
@@ -112,7 +138,16 @@ namespace Eco.Player
             controller.ResetAirJumps();
             controller.BeginMovementOverride();
 
-            if (cableRenderer != null)
+            if (grabhookAnimator != null)
+            {
+                grabhookAnimator.SetBool(IsPullingHash, true);
+                grabhookAnimator.ResetTrigger(RetractHash);
+                grabhookAnimator.SetTrigger(FireHash);
+            }
+
+            AimGrabhookAtTarget();
+
+            if (cableRenderer != null && !(hideLineWhenUsing3DVisual && grabhookVisual != null))
             {
                 cableRenderer.enabled = true;
                 UpdateCableVisual();
@@ -145,7 +180,18 @@ namespace Eco.Player
             controller.MoveCharacter(direction * (pullSpeed * Time.deltaTime));
             pullTimer -= Time.deltaTime;
 
+            AimGrabhookAtTarget();
             UpdateCableVisual();
+        }
+
+        private void AimGrabhookAtTarget()
+        {
+            if (grabhookVisual == null) return;
+            Vector3 dir = hookedWorldPoint - grabhookVisual.position;
+            if (dir.sqrMagnitude > 0.001f)
+            {
+                grabhookVisual.rotation = Quaternion.LookRotation(dir.normalized);
+            }
         }
 
         private void StopPull(bool applyReleaseJump)
@@ -153,6 +199,13 @@ namespace Eco.Player
             isPulling = false;
             hookedTarget = null;
             controller.EndMovementOverride();
+
+            if (grabhookAnimator != null)
+            {
+                grabhookAnimator.SetBool(IsPullingHash, false);
+                grabhookAnimator.ResetTrigger(FireHash);
+                grabhookAnimator.SetTrigger(RetractHash);
+            }
 
             if (applyReleaseJump)
             {

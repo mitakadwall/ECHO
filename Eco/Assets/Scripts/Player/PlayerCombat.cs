@@ -15,8 +15,16 @@ namespace Eco.Player
     {
         [Header("References")]
         [SerializeField] private Transform attackOrigin;
+        [SerializeField] private Transform rightArmPivot;
         [SerializeField] private Transform weaponVisual;
         [SerializeField] private Transform shieldVisual;
+
+        [Header("Equipment State")]
+        [SerializeField] private bool startWithWeapon = false;
+        [SerializeField] private bool startWithShield = false;
+
+        public bool HasWeapon { get; private set; }
+        public bool HasShield { get; private set; }
 
         [Header("Melee Settings")]
         [SerializeField] private float meleeDamage = 20f;
@@ -40,10 +48,12 @@ namespace Eco.Player
         private CinemachineImpulseSource impulseSource;
         private float lastAttackTime = -999f;
         private float lastImpactTime = -999f;
-        private float swingTimer;
+        private float swingElapsed = -1f;
+        private float swingDuration = 0.36f;
+        private bool isImpactSwing;
 
-        private Vector3 weaponRestLocalPos;
-        private Quaternion weaponRestLocalRot;
+        private Vector3 armRestLocalPos;
+        private Quaternion armRestLocalRot;
         private Vector3 shieldRestLocalPos;
 
         private void Awake()
@@ -51,16 +61,40 @@ namespace Eco.Player
             playerHealth = GetComponent<Health>();
             impulseSource = GetComponent<CinemachineImpulseSource>();
 
-            if (weaponVisual != null)
+            Transform activePivot = rightArmPivot != null ? rightArmPivot : weaponVisual;
+            if (activePivot != null)
             {
-                weaponRestLocalPos = weaponVisual.localPosition;
-                weaponRestLocalRot = weaponVisual.localRotation;
+                armRestLocalPos = activePivot.localPosition;
+                armRestLocalRot = activePivot.localRotation;
             }
 
             if (shieldVisual != null)
             {
                 shieldRestLocalPos = shieldVisual.localPosition;
             }
+
+            HasWeapon = startWithWeapon;
+            HasShield = startWithShield;
+            SyncEquipmentVisuals();
+        }
+
+        public void EquipWeapon()
+        {
+            HasWeapon = true;
+            SyncEquipmentVisuals();
+        }
+
+        public void EquipShield()
+        {
+            HasShield = true;
+            SyncEquipmentVisuals();
+        }
+
+        private void SyncEquipmentVisuals()
+        {
+            if (weaponVisual != null) weaponVisual.gameObject.SetActive(HasWeapon);
+            if (shieldVisual != null) shieldVisual.gameObject.SetActive(HasShield);
+            if (!HasShield && playerHealth != null) playerHealth.IsBlocking = false;
         }
 
         private void OnEnable()
@@ -85,6 +119,11 @@ namespace Eco.Player
 
         private void HandleShieldInput()
         {
+            if (!HasShield)
+            {
+                playerHealth.IsBlocking = false;
+                return;
+            }
             if (Keyboard.current == null) return;
 
             bool isBlocking = Cursor.lockState == CursorLockMode.Locked && Keyboard.current.qKey.isPressed;
@@ -93,6 +132,7 @@ namespace Eco.Player
 
         private void HandleMeleeInput()
         {
+            if (!HasWeapon) return;
             if (Mouse.current == null || Cursor.lockState != CursorLockMode.Locked) return;
             if (playerHealth.IsBlocking) return;
 
@@ -104,6 +144,7 @@ namespace Eco.Player
 
         private void HandleImpactInput()
         {
+            if (!HasWeapon) return;
             if (Keyboard.current == null || Cursor.lockState != CursorLockMode.Locked) return;
             if (playerHealth.IsBlocking) return;
 
@@ -116,7 +157,9 @@ namespace Eco.Player
         private void PerformMeleeAttack()
         {
             lastAttackTime = Time.time;
-            swingTimer = 0.2f;
+            swingElapsed = 0f;
+            swingDuration = 0.36f;
+            isImpactSwing = false;
 
             if (TryFindClosestHit(meleeRadius, meleeRange, out RaycastHit bestHit))
             {
@@ -132,7 +175,9 @@ namespace Eco.Player
         private void PerformImpactStrike()
         {
             lastImpactTime = Time.time;
-            swingTimer = 0.2f;
+            swingElapsed = 0f;
+            swingDuration = 0.44f;
+            isImpactSwing = true;
 
             if (!TryFindClosestHit(impactRadius, impactRange, out RaycastHit bestHit)) return;
 
@@ -218,26 +263,68 @@ namespace Eco.Player
 
         private void UpdateVisualFeedback()
         {
-            if (weaponVisual != null)
+            Transform activePivot = rightArmPivot != null ? rightArmPivot : weaponVisual;
+            if (activePivot != null)
             {
-                if (swingTimer > 0f)
+                if (swingElapsed >= 0f)
                 {
-                    swingTimer = Mathf.Max(0f, swingTimer - Time.deltaTime);
-                    float t = Mathf.Sin((swingTimer / 0.2f) * Mathf.PI);
-                    weaponVisual.localPosition = weaponRestLocalPos + new Vector3(-0.15f * t, -0.05f * t, 0.25f * t);
-                    weaponVisual.localRotation = weaponRestLocalRot * Quaternion.Euler(45f * t, -35f * t, 0f);
+                    swingElapsed += Time.deltaTime;
+                    float u = Mathf.Clamp01(swingElapsed / swingDuration);
+                    Vector3 posOffset;
+                    Vector3 rotOffset;
+
+                    if (u < 0.22f)
+                    {
+                        // Phase 1: Wind-up back and up
+                        float p = Mathf.SmoothStep(0f, 1f, u / 0.22f);
+                        posOffset = new Vector3(0.10f, 0.08f, -0.07f) * p;
+                        rotOffset = new Vector3(-28f, 22f, -15f) * p;
+                    }
+                    else if (u < 0.56f)
+                    {
+                        // Phase 2: Fast diagonal slash across view
+                        float p = Mathf.SmoothStep(0f, 1f, (u - 0.22f) / 0.34f);
+                        float power = isImpactSwing ? 1.25f : 1.0f;
+                        posOffset = Vector3.Lerp(
+                            new Vector3(0.10f, 0.08f, -0.07f),
+                            new Vector3(-0.34f * power, -0.10f, 0.24f * power),
+                            p);
+                        rotOffset = Vector3.Lerp(
+                            new Vector3(-28f, 22f, -15f),
+                            new Vector3(58f * power, -52f, 28f),
+                            p);
+                    }
+                    else
+                    {
+                        // Phase 3: Smooth follow-through back to rest
+                        float p = Mathf.SmoothStep(0f, 1f, (u - 0.56f) / 0.44f);
+                        float power = isImpactSwing ? 1.25f : 1.0f;
+                        posOffset = Vector3.Lerp(new Vector3(-0.34f * power, -0.10f, 0.24f * power), Vector3.zero, p);
+                        rotOffset = Vector3.Lerp(new Vector3(58f * power, -52f, 28f), Vector3.zero, p);
+                    }
+
+                    activePivot.localPosition = armRestLocalPos + posOffset;
+                    activePivot.localRotation = armRestLocalRot * Quaternion.Euler(rotOffset);
+
+                    if (u >= 1f)
+                    {
+                        swingElapsed = -1f;
+                    }
                 }
                 else
                 {
-                    weaponVisual.localPosition = Vector3.Lerp(weaponVisual.localPosition, weaponRestLocalPos, Time.deltaTime * 16f);
-                    weaponVisual.localRotation = Quaternion.Slerp(weaponVisual.localRotation, weaponRestLocalRot, Time.deltaTime * 16f);
+                    // Subtle breathing sway when idle
+                    float swayY = Mathf.Sin(Time.time * 2.2f) * 0.005f;
+                    Vector3 targetPos = armRestLocalPos + new Vector3(0f, swayY, 0f);
+                    activePivot.localPosition = Vector3.Lerp(activePivot.localPosition, targetPos, Time.deltaTime * 12f);
+                    activePivot.localRotation = Quaternion.Slerp(activePivot.localRotation, armRestLocalRot, Time.deltaTime * 12f);
                 }
             }
 
             if (shieldVisual != null)
             {
                 Vector3 targetPos = playerHealth.IsBlocking
-                    ? new Vector3(-0.12f, -0.14f, 0.52f)
+                    ? new Vector3(-0.10f, -0.04f, 0.50f)
                     : shieldRestLocalPos;
                 shieldVisual.localPosition = Vector3.Lerp(shieldVisual.localPosition, targetPos, Time.deltaTime * 14f);
             }
