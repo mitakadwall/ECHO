@@ -2446,7 +2446,7 @@ MonoBehaviour:
   lightRenderers:
   - {fileID: 1337109803}
   highHealthColor: {r: 0.08, g: 0.95, b: 1, a: 1}
-  mediumHealthColor: {r: 1, g: 0.52, b: 0.05, a: 1}
+  mediumHealthColor: {r: 1, g: 0.8156863, b: 0.05098039, a: 1}
   lowHealthColor: {r: 1, g: 0.06, b: 0.04, a: 1}
   highThreshold: 0.6
   lowThreshold: 0.3
