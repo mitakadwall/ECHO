@@ -17,6 +17,17 @@ namespace Eco.Player
 
         private IInteractable currentTarget;
         private GUIStyle promptStyle;
+        private bool isInteractionBlocked;
+
+        public bool IsInteractionBlocked
+        {
+            get => isInteractionBlocked;
+            set
+            {
+                isInteractionBlocked = value;
+                if (value) currentTarget = null;
+            }
+        }
 
         private void Awake()
         {
@@ -28,6 +39,12 @@ namespace Eco.Player
 
         private void Update()
         {
+            if (isInteractionBlocked)
+            {
+                currentTarget = null;
+                return;
+            }
+
             if (viewOrigin == null && Camera.main != null)
             {
                 viewOrigin = Camera.main.transform;
@@ -38,7 +55,7 @@ namespace Eco.Player
             if (currentTarget != null && Keyboard.current != null && Keyboard.current[interactKey].wasPressedThisFrame)
             {
                 currentTarget.Interact(gameObject);
-                currentTarget = FindBestInteractable();
+                currentTarget = isInteractionBlocked ? null : FindBestInteractable();
             }
         }
 
@@ -98,8 +115,9 @@ namespace Eco.Player
             }
 
             string label = $"[E] {currentTarget.PromptText}";
-            float width = 360f;
-            float height = 40f;
+            Vector2 textSize = promptStyle.CalcSize(new GUIContent(label));
+            float width = Mathf.Max(360f, textSize.x + 48f);
+            float height = Mathf.Max(42f, textSize.y + 16f);
             Rect rect = new Rect((Screen.width - width) * 0.5f, Screen.height * 0.62f, width, height);
             GUI.Box(rect, label, promptStyle);
         }

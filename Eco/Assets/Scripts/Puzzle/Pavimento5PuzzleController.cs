@@ -106,6 +106,19 @@ namespace Eco.Puzzle
             monitorRoutine = StartCoroutine(FlashSequenceRoutine());
         }
 
+        public void RestoreSolvedState()
+        {
+            if (!isSolved)
+            {
+                SolvePuzzle();
+            }
+
+            if (lockedDoor != null)
+            {
+                lockedDoor.localPosition = doorClosedPos + doorOpenOffset;
+            }
+        }
+
         public void NotifyLeverPulled(PuzzleLeverInteractable lever)
         {
             if (isSolved || isResetting) return;

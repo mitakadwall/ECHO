@@ -30,6 +30,34 @@ namespace Eco.Player
         private Health health;
         private MaterialPropertyBlock propBlock;
         private float currentRatio = 1f;
+        private bool endgameOverrideActive;
+
+        public Renderer[] LightRenderers => lightRenderers;
+
+        public void SetEndgameOverride(bool active, Color color, float intensity)
+        {
+            endgameOverrideActive = active;
+            if (active)
+            {
+                ApplyColor(color, intensity);
+            }
+            else if (health != null)
+            {
+                UpdateRatio(health.CurrentHealth, health.MaxHealth);
+            }
+        }
+
+        public Vector3 GetArmLightWorldPosition()
+        {
+            if (lightRenderers != null)
+            {
+                foreach (Renderer r in lightRenderers)
+                {
+                    if (r != null) return r.bounds.center;
+                }
+            }
+            return transform.position + Vector3.up * 0.45f + transform.forward * 0.35f;
+        }
 
         private void Awake()
         {
@@ -64,6 +92,8 @@ namespace Eco.Player
 
         private void Update()
         {
+            if (endgameOverrideActive) return;
+
             if (currentRatio < lowThreshold && lightRenderers != null && lightRenderers.Length > 0)
             {
                 float pulse = 0.55f + 0.45f * Mathf.Sin(Time.time * lowHealthPulseSpeed);
@@ -73,6 +103,7 @@ namespace Eco.Player
 
         private void HandleHealthChanged(float current, float max)
         {
+            if (endgameOverrideActive) return;
             UpdateRatio(current, max);
         }
 

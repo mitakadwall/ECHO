@@ -37,6 +37,32 @@ namespace Eco.Combat
             OnHealthChanged?.Invoke(currentHealth, maxHealth);
         }
 
+        /// <summary>
+        /// Restores health to an exact saved value (low, medium, or high) without refilling to max.
+        /// </summary>
+        public void SetHealth(float value)
+        {
+            currentHealth = Mathf.Clamp(value, 0f, maxHealth);
+            OnHealthChanged?.Invoke(currentHealth, maxHealth);
+        }
+
+        /// <summary>
+        /// Heals by a positive amount (e.g. +25% from an Energy Cell), clamped to MaxHealth,
+        /// firing OnHealthChanged so ArmHealthLight updates immediately.
+        /// </summary>
+        public float Heal(float amount)
+        {
+            if (amount <= 0f || IsDead) return 0f;
+            float before = currentHealth;
+            currentHealth = Mathf.Min(maxHealth, currentHealth + amount);
+            float healed = currentHealth - before;
+            if (healed > 0f)
+            {
+                OnHealthChanged?.Invoke(currentHealth, maxHealth);
+            }
+            return healed;
+        }
+
         public void TakeDamage(float amount)
         {
             if (amount <= 0f || IsDead) return;

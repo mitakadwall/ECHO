@@ -33,11 +33,13 @@ namespace Eco.Player
         private float targetRoll;
         private int airJumpsRemaining;
         private int movementOverrideCount;
+        private bool isControlLocked;
 
         public CharacterController CharacterController => characterController;
         public Transform CameraRoot => cameraRoot;
         public bool IsGrounded => characterController != null && characterController.isGrounded;
         public bool IsMovementOverridden => movementOverrideCount > 0;
+        public bool IsControlLocked => isControlLocked;
         public float Gravity => gravity;
         public Vector3 Velocity => velocity;
         public Vector2 CurrentMoveInput { get; private set; }
@@ -52,6 +54,13 @@ namespace Eco.Player
 
         private void Update()
         {
+            if (isControlLocked)
+            {
+                CurrentMoveInput = Vector2.zero;
+                PlanarMoveDirection = Vector3.zero;
+                return;
+            }
+
             HandleCursorToggle();
             HandleMouseLook();
             ReadMoveInput();
@@ -189,6 +198,45 @@ namespace Eco.Player
         public CollisionFlags MoveCharacter(Vector3 motion)
         {
             return characterController.Move(motion);
+        }
+
+        /// <summary>
+        /// Locks or unlocks player movement, mouse look, and Escape cursor toggling
+        /// while interacting with diegetic terminals.
+        /// </summary>
+        public void SetControlLocked(bool locked)
+        {
+            if (isControlLocked == locked) return;
+
+            isControlLocked = locked;
+            if (locked)
+            {
+                BeginMovementOverride();
+                velocity = Vector3.zero;
+                CurrentMoveInput = Vector2.zero;
+                PlanarMoveDirection = Vector3.zero;
+                SetCursorLocked(false);
+            }
+            else
+            {
+                EndMovementOverride();
+                SetCursorLocked(true);
+            }
+        }
+
+        /// <summary>
+        /// Safely teleports the CharacterController to a saved position and yaw.
+        /// </summary>
+        public void TeleportTo(Vector3 worldPosition, float yawDegrees)
+        {
+            bool wasEnabled = characterController != null && characterController.enabled;
+            if (wasEnabled) characterController.enabled = false;
+
+            transform.position = worldPosition;
+            transform.rotation = Quaternion.Euler(0f, yawDegrees, 0f);
+            velocity = Vector3.zero;
+
+            if (wasEnabled) characterController.enabled = true;
         }
     }
 }
