@@ -20,14 +20,7 @@ namespace Eco.Enemies.Boss.States
 
         public void Tick(float deltaTime)
         {
-            if (boss.Vision.PlayerTransform == null)
-            {
-                boss.Vision.ResolvePlayer();
-                if (boss.Vision.PlayerTransform == null) return;
-            }
-
-            float dist = boss.Vision.GetDistanceToPlayer();
-            if (boss.Vision.CanSeePlayer || dist <= boss.ArenaActivationDistance)
+            if (boss.IsPlayerVisualizingBoss())
             {
                 boss.ActivateFight();
                 boss.ChangeState(boss.WalkState);

@@ -41,7 +41,9 @@ namespace Eco.Enemies.Boss
             fxGo.transform.position = point;
 
             ParticleSystem ps = fxGo.AddComponent<ParticleSystem>();
+            ps.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
             var main = ps.main;
+            main.playOnAwake = false;
             main.duration = 0.6f;
             main.loop = false;
             main.startLifetime = new ParticleSystem.MinMaxCurve(0.5f, 1.1f);

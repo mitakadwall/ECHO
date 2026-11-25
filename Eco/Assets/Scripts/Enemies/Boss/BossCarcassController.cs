@@ -33,7 +33,9 @@ namespace Eco.Enemies.Boss
         [SerializeField] private Light overheatBackLight;
 
         [Header("Arena Activation")]
-        [SerializeField] private float arenaActivationDistance = 18f;
+        [SerializeField] private float arenaActivationDistance = 24f;
+        [SerializeField] private float maxActivationVerticalDelta = 9.0f;
+        [SerializeField] private float playerLookDotThreshold = 0.55f;
 
         [Header("Movement & Phases")]
         [SerializeField] private float phase1WalkSpeed = 2.6f;
@@ -241,6 +243,45 @@ namespace Eco.Enemies.Boss
         public void ActivateFight()
         {
             isFightActive = true;
+        }
+
+        /// <summary>
+        /// Returns true only when the player is in the Pavimento 01 chamber, within range,
+        /// looking toward Carcass-0, and has an unobstructed line of sight to it.
+        /// </summary>
+        public bool IsPlayerVisualizingBoss()
+        {
+            if (vision == null) return false;
+            if (vision.PlayerTransform == null)
+            {
+                vision.ResolvePlayer();
+                if (vision.PlayerTransform == null) return false;
+            }
+
+            Vector3 playerPos = vision.PlayerTransform.position;
+            if (Mathf.Abs(playerPos.y - transform.position.y) > maxActivationVerticalDelta)
+            {
+                return false;
+            }
+
+            float dist = Vector3.Distance(playerPos, transform.position);
+            if (dist > arenaActivationDistance)
+            {
+                return false;
+            }
+
+            Camera cam = Camera.main;
+            Vector3 bossCenter = transform.position + Vector3.up * 1.8f;
+            if (cam != null)
+            {
+                Vector3 toBoss = (bossCenter - cam.transform.position).normalized;
+                if (Vector3.Dot(cam.transform.forward, toBoss) < playerLookDotThreshold)
+                {
+                    return false;
+                }
+            }
+
+            return vision.HasLineOfSight(vision.GetPlayerAimPoint(), bossCenter);
         }
 
         public void ChangeState(IEnemyState nextState)

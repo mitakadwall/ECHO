@@ -288,7 +288,7 @@ namespace Eco.Save
                 }
             }
 
-            if (screenMaterialIndex < 0 || screenMaterialIndex >= mf.sharedMesh.subMeshCount)
+            if (screenMaterialIndex < 0 || screenMaterialIndex >= mf.sharedMesh.subMeshCount || !mf.sharedMesh.isReadable)
             {
                 Bounds b = mr.bounds;
                 screenFrontCenterWorld = new Vector3(b.center.x, b.center.y + 0.25f, b.max.z);

@@ -662,7 +662,7 @@ namespace Eco.Endgame
                 }
             }
 
-            if (screenMaterialIndex < 0 || screenMaterialIndex >= mf.sharedMesh.subMeshCount)
+            if (screenMaterialIndex < 0 || screenMaterialIndex >= mf.sharedMesh.subMeshCount || !mf.sharedMesh.isReadable)
             {
                 Bounds b = mr.bounds;
                 screenFrontCenterWorld = new Vector3(b.center.x, b.center.y, b.max.z);
