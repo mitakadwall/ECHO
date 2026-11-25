@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using Eco.Combat;
 
 namespace Eco.Player
 {
@@ -34,6 +35,7 @@ namespace Eco.Player
         [SerializeField] private float maxPullDuration = 1.6f;
         [SerializeField] private float hookCooldown = 1.2f;
         [SerializeField] private float releaseJumpBoost = 6.5f;
+        [SerializeField] private float enemyHookDamage = 10f;
 
         private PlayerController controller;
         private Transform hookedTarget;
@@ -119,7 +121,20 @@ namespace Eco.Player
 
             if (!hitValid) return;
             if (hit.collider.transform.IsChildOf(transform) || hit.collider.transform == transform) return;
-            if (requireTag && !string.IsNullOrEmpty(hookableTag) && !hit.collider.CompareTag(hookableTag)) return;
+
+            EnemyHealth enemyHealth = hit.collider.GetComponentInParent<EnemyHealth>();
+            bool isLiveEnemy = enemyHealth != null && !enemyHealth.IsDead;
+
+            if (!isLiveEnemy && requireTag && !string.IsNullOrEmpty(hookableTag) && !hit.collider.CompareTag(hookableTag))
+            {
+                return;
+            }
+
+            if (isLiveEnemy && enemyHookDamage > 0f)
+            {
+                enemyHealth.TakeDamage(enemyHookDamage);
+                Debug.Log($"[PlayerGrabhook] Hook atingiu inimigo '{enemyHealth.name}' causando {enemyHookDamage} de dano.");
+            }
 
             StartPull(hit.collider.transform, hit.point);
         }

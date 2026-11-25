@@ -68,7 +68,7 @@ namespace Eco.Interaction
         public bool CanInteract(GameObject interactor)
         {
             if (isConsumed || interactor == null) return false;
-            Health health = interactor.GetComponent<Health>();
+            Health health = interactor.GetComponentInParent<Health>();
             if (health == null || health.IsDead) return false;
             return health.CurrentHealth < health.MaxHealth;
         }
@@ -77,7 +77,7 @@ namespace Eco.Interaction
         {
             if (!CanInteract(interactor)) return;
 
-            Health health = interactor.GetComponent<Health>();
+            Health health = interactor.GetComponentInParent<Health>();
             if (health == null) return;
 
             float healAmount = health.MaxHealth * healFraction;

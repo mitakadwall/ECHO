@@ -63,18 +63,29 @@ namespace Eco.Player
         {
             Transform origin = viewOrigin != null ? viewOrigin : transform;
 
-            // 1. Prefer direct look raycast within interaction range (gives exact lever/monitor selection)
-            if (Physics.Raycast(origin.position, origin.forward, out RaycastHit hit, interactRange, ~0, QueryTriggerInteraction.Collide))
+            // 1. Prefer closest interactable along the direct look ray (ignores non-interactable geometry overlaps)
+            RaycastHit[] rayHits = Physics.RaycastAll(origin.position, origin.forward, interactRange, ~0, QueryTriggerInteraction.Collide);
+            IInteractable lookedBest = null;
+            float lookedBestDist = float.MaxValue;
+            foreach (RaycastHit hit in rayHits)
             {
+                if (hit.collider.transform == transform || hit.collider.transform.IsChildOf(transform)) continue;
                 IInteractable looked = hit.collider.GetComponentInParent<IInteractable>();
-                if (looked != null && looked.CanInteract(gameObject))
+                if (looked != null && looked.CanInteract(gameObject) && hit.distance < lookedBestDist)
                 {
-                    return looked;
+                    lookedBestDist = hit.distance;
+                    lookedBest = looked;
                 }
+            }
+            if (lookedBest != null)
+            {
+                return lookedBest;
             }
 
             // 2. Fallback to closest/most-centered available interactable within proximity radius
-            Collider[] nearby = Physics.OverlapSphere(origin.position, interactRange, ~0, QueryTriggerInteraction.Collide);
+            // Sample from player body center so low floor/table pickups (e.g. Energy Cells) are always reachable.
+            Vector3 proximityCenter = Vector3.Lerp(transform.position, origin.position, 0.5f);
+            Collider[] nearby = Physics.OverlapSphere(proximityCenter, interactRange, ~0, QueryTriggerInteraction.Collide);
             IInteractable best = null;
             float bestScore = float.MaxValue;
 

@@ -34,6 +34,7 @@ namespace Eco.Save
         private readonly HashSet<string> syncedTerminals = new HashSet<string>();
         private readonly HashSet<string> collectedFragments = new HashSet<string>();
         private readonly HashSet<string> collectedEnergyCells = new HashSet<string>();
+        private readonly HashSet<string> defeatedEnemies = new HashSet<string>();
         private EcoSaveData lastLoadedData;
 
         public string SaveFilePath => Path.Combine(Application.persistentDataPath, saveFileName);
@@ -115,6 +116,16 @@ namespace Eco.Save
             if (!string.IsNullOrEmpty(cellId)) collectedEnergyCells.Add(cellId);
         }
 
+        public bool IsEnemyDefeated(string enemyId)
+        {
+            return !string.IsNullOrEmpty(enemyId) && defeatedEnemies.Contains(enemyId);
+        }
+
+        public void MarkEnemyDefeated(string enemyId)
+        {
+            if (!string.IsNullOrEmpty(enemyId)) defeatedEnemies.Add(enemyId);
+        }
+
         public bool SaveFromTerminal(string terminalId, string floorLabel, GameObject playerObject)
         {
             EcoSaveData data = CaptureState(terminalId, floorLabel, playerObject);
@@ -151,6 +162,7 @@ namespace Eco.Save
             data.syncedTerminalIds = new List<string>(syncedTerminals);
             data.collectedFragmentIds = new List<string>(collectedFragments);
             data.collectedEnergyCellIds = new List<string>(collectedEnergyCells);
+            data.defeatedEnemyIds = new List<string>(defeatedEnemies);
 
             GameObject player = playerObject != null ? playerObject : FindPlayerObject();
             if (player != null)
@@ -226,6 +238,15 @@ namespace Eco.Save
                 foreach (string id in data.collectedEnergyCellIds)
                 {
                     if (!string.IsNullOrEmpty(id)) collectedEnergyCells.Add(id);
+                }
+            }
+
+            defeatedEnemies.Clear();
+            if (data.defeatedEnemyIds != null)
+            {
+                foreach (string id in data.defeatedEnemyIds)
+                {
+                    if (!string.IsNullOrEmpty(id)) defeatedEnemies.Add(id);
                 }
             }
 
@@ -353,6 +374,9 @@ namespace Eco.Save
                 if (File.Exists(f)) File.Delete(f);
             }
             syncedTerminals.Clear();
+            collectedFragments.Clear();
+            collectedEnergyCells.Clear();
+            defeatedEnemies.Clear();
             lastLoadedData = null;
         }
 

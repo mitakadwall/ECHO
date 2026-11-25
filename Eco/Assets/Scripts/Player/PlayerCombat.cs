@@ -234,6 +234,33 @@ namespace Eco.Player
                 }
             }
 
+            // Fallback for point-blank enemies (e.g. when pinned by a Striker) whose collider overlaps attackOrigin
+            if (!found)
+            {
+                Vector3 closeCenter = attackOrigin.position + attackOrigin.forward * (radius + 0.35f);
+                Collider[] overlaps = Physics.OverlapSphere(closeCenter, radius + 0.45f, Physics.DefaultRaycastLayers, QueryTriggerInteraction.Ignore);
+                foreach (Collider col in overlaps)
+                {
+                    if (col.transform.IsChildOf(transform) || col.transform == transform) continue;
+                    if (col.GetComponentInParent<IDamageable>() == null && col.GetComponentInParent<IImpactTarget>() == null) continue;
+
+                    Vector3 hitPoint = col.ClosestPoint(attackOrigin.position);
+                    float d = Vector3.Distance(attackOrigin.position, hitPoint);
+                    if (d < closestDistance)
+                    {
+                        closestDistance = d;
+                        // Synthesize hit via direct raycast toward the closest point
+                        Vector3 dir = (hitPoint - attackOrigin.position);
+                        if (dir.sqrMagnitude > 0.0001f &&
+                            col.Raycast(new Ray(attackOrigin.position, dir.normalized), out RaycastHit directHit, range + 1f))
+                        {
+                            closestHit = directHit;
+                            found = true;
+                        }
+                    }
+                }
+            }
+
             return found;
         }
 

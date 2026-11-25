@@ -34,6 +34,7 @@ namespace Eco.Save
         public List<string> syncedTerminalIds = new List<string>();
         public List<string> collectedFragmentIds = new List<string>();
         public List<string> collectedEnergyCellIds = new List<string>();
+        public List<string> defeatedEnemyIds = new List<string>();
 
         public Vector3 GetPlayerPosition() => new Vector3(playerPosX, playerPosY, playerPosZ);
 

@@ -39,6 +39,8 @@ namespace Eco.Endgame
         [Header("Boss Gating (Carcass-0)")]
         [Tooltip("Arraste o componente Health do boss Carcass-0 quando ele for adicionado à cena.")]
         [SerializeField] private Health bossHealth;
+        [Tooltip("Componente EnemyHealth do chefe Carcass-0.")]
+        [SerializeField] private EnemyHealth bossEnemyHealth;
         [SerializeField] private float postBossSilenceDelay = 2.5f;
         [Tooltip("Ative apenas para testar o final sem precisar derrotar o Carcass-0.")]
         [SerializeField] private bool unlockImmediatelyForTesting = false;
@@ -120,6 +122,10 @@ namespace Eco.Endgame
             {
                 bossHealth.OnDied += HandleBossDied;
             }
+            if (bossEnemyHealth != null)
+            {
+                bossEnemyHealth.OnDied += HandleBossDied;
+            }
         }
 
         private void OnDisable()
@@ -127,6 +133,10 @@ namespace Eco.Endgame
             if (bossHealth != null)
             {
                 bossHealth.OnDied -= HandleBossDied;
+            }
+            if (bossEnemyHealth != null)
+            {
+                bossEnemyHealth.OnDied -= HandleBossDied;
             }
         }
 
