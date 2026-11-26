@@ -1,0 +1,998 @@
+{
+  "scene_name": "complexo",
+  "fbx_file": "area_treinamento_nexus.fbx",
+  "lights": [
+    {
+      "name": "M1 teto",
+      "type": "AREA",
+      "blender_pos": [
+        4.0,
+        0.0,
+        4.9
+      ],
+      "blender_rot_deg": [
+        0.0,
+        -0.0,
+        0.0
+      ],
+      "color": [
+        0.2,
+        0.82,
+        1.0
+      ],
+      "energy": 320.0,
+      "size_x": 3.5,
+      "size_y": 1.5,
+      "shadow_soft_size": 0.0,
+      "use_shadow": true
+    },
+    {
+      "name": "M2 1",
+      "type": "AREA",
+      "blender_pos": [
+        16.0,
+        0.0,
+        6.8
+      ],
+      "blender_rot_deg": [
+        0.0,
+        -0.0,
+        0.0
+      ],
+      "color": [
+        0.35,
+        0.85,
+        1.0
+      ],
+      "energy": 480.0,
+      "size_x": 5.0,
+      "size_y": 2.0,
+      "shadow_soft_size": 0.0,
+      "use_shadow": true
+    },
+    {
+      "name": "M2 2",
+      "type": "AREA",
+      "blender_pos": [
+        29.0,
+        0.0,
+        6.8
+      ],
+      "blender_rot_deg": [
+        0.0,
+        -0.0,
+        0.0
+      ],
+      "color": [
+        0.35,
+        0.85,
+        1.0
+      ],
+      "energy": 480.0,
+      "size_x": 5.0,
+      "size_y": 2.0,
+      "shadow_soft_size": 0.0,
+      "use_shadow": true
+    },
+    {
+      "name": "M2 wallrun",
+      "type": "POINT",
+      "blender_pos": [
+        40.0,
+        2.0,
+        5.2
+      ],
+      "blender_rot_deg": [
+        0.0,
+        -0.0,
+        0.0
+      ],
+      "color": [
+        1.0,
+        0.65,
+        0.15
+      ],
+      "energy": 550.0,
+      "size_x": 1.0,
+      "size_y": 1.0,
+      "shadow_soft_size": 0.8,
+      "use_shadow": true
+    },
+    {
+      "name": "M3 1",
+      "type": "AREA",
+      "blender_pos": [
+        55.0,
+        0.0,
+        6.3
+      ],
+      "blender_rot_deg": [
+        0.0,
+        -0.0,
+        0.0
+      ],
+      "color": [
+        1.0,
+        0.65,
+        0.18
+      ],
+      "energy": 420.0,
+      "size_x": 4.0,
+      "size_y": 2.0,
+      "shadow_soft_size": 0.0,
+      "use_shadow": true
+    },
+    {
+      "name": "M3 2",
+      "type": "AREA",
+      "blender_pos": [
+        68.0,
+        0.0,
+        6.3
+      ],
+      "blender_rot_deg": [
+        0.0,
+        -0.0,
+        0.0
+      ],
+      "color": [
+        1.0,
+        0.22,
+        0.15
+      ],
+      "energy": 460.0,
+      "size_x": 4.5,
+      "size_y": 2.0,
+      "shadow_soft_size": 0.0,
+      "use_shadow": true
+    },
+    {
+      "name": "M4 1",
+      "type": "AREA",
+      "blender_pos": [
+        86.0,
+        0.0,
+        9.8
+      ],
+      "blender_rot_deg": [
+        0.0,
+        -0.0,
+        0.0
+      ],
+      "color": [
+        0.15,
+        0.88,
+        1.0
+      ],
+      "energy": 650.0,
+      "size_x": 5.0,
+      "size_y": 3.0,
+      "shadow_soft_size": 0.0,
+      "use_shadow": true
+    },
+    {
+      "name": "M4 2",
+      "type": "AREA",
+      "blender_pos": [
+        100.0,
+        0.0,
+        9.8
+      ],
+      "blender_rot_deg": [
+        0.0,
+        -0.0,
+        0.0
+      ],
+      "color": [
+        0.15,
+        0.88,
+        1.0
+      ],
+      "energy": 750.0,
+      "size_x": 5.0,
+      "size_y": 3.0,
+      "shadow_soft_size": 0.0,
+      "use_shadow": true
+    },
+    {
+      "name": "M4 fosso",
+      "type": "POINT",
+      "blender_pos": [
+        95.0,
+        0.0,
+        -2.2
+      ],
+      "blender_rot_deg": [
+        0.0,
+        -0.0,
+        0.0
+      ],
+      "color": [
+        1.0,
+        0.55,
+        0.1
+      ],
+      "energy": 450.0,
+      "size_x": 1.0,
+      "size_y": 1.0,
+      "shadow_soft_size": 0.8,
+      "use_shadow": true
+    },
+    {
+      "name": "M5 1",
+      "type": "AREA",
+      "blender_pos": [
+        116.5,
+        0.0,
+        9.5
+      ],
+      "blender_rot_deg": [
+        0.0,
+        -0.0,
+        0.0
+      ],
+      "color": [
+        1.0,
+        0.62,
+        0.15
+      ],
+      "energy": 400.0,
+      "size_x": 3.5,
+      "size_y": 2.0,
+      "shadow_soft_size": 0.0,
+      "use_shadow": true
+    },
+    {
+      "name": "M5 2",
+      "type": "AREA",
+      "blender_pos": [
+        123.0,
+        0.0,
+        9.5
+      ],
+      "blender_rot_deg": [
+        0.0,
+        -0.0,
+        0.0
+      ],
+      "color": [
+        0.2,
+        0.85,
+        1.0
+      ],
+      "energy": 380.0,
+      "size_x": 3.5,
+      "size_y": 2.0,
+      "shadow_soft_size": 0.0,
+      "use_shadow": true
+    },
+    {
+      "name": "M6 centro",
+      "type": "AREA",
+      "blender_pos": [
+        146.0,
+        0.0,
+        10.5
+      ],
+      "blender_rot_deg": [
+        0.0,
+        -0.0,
+        0.0
+      ],
+      "color": [
+        0.45,
+        0.85,
+        1.0
+      ],
+      "energy": 850.0,
+      "size_x": 6.0,
+      "size_y": 4.0,
+      "shadow_soft_size": 0.0,
+      "use_shadow": true
+    },
+    {
+      "name": "M6 equip",
+      "type": "POINT",
+      "blender_pos": [
+        136.5,
+        -6.0,
+        6.7
+      ],
+      "blender_rot_deg": [
+        0.0,
+        -0.0,
+        0.0
+      ],
+      "color": [
+        0.15,
+        0.9,
+        1.0
+      ],
+      "energy": 350.0,
+      "size_x": 1.0,
+      "size_y": 1.0,
+      "shadow_soft_size": 0.8,
+      "use_shadow": true
+    },
+    {
+      "name": "M6 lançador",
+      "type": "POINT",
+      "blender_pos": [
+        153.0,
+        4.5,
+        7.2
+      ],
+      "blender_rot_deg": [
+        0.0,
+        -0.0,
+        0.0
+      ],
+      "color": [
+        1.0,
+        0.2,
+        0.15
+      ],
+      "energy": 420.0,
+      "size_x": 1.0,
+      "size_y": 1.0,
+      "shadow_soft_size": 0.8,
+      "use_shadow": true
+    },
+    {
+      "name": "M7 teto",
+      "type": "AREA",
+      "blender_pos": [
+        165.0,
+        0.0,
+        8.6
+      ],
+      "blender_rot_deg": [
+        0.0,
+        -0.0,
+        0.0
+      ],
+      "color": [
+        0.2,
+        1.0,
+        0.55
+      ],
+      "energy": 420.0,
+      "size_x": 3.5,
+      "size_y": 2.0,
+      "shadow_soft_size": 0.0,
+      "use_shadow": true
+    }
+  ],
+  "materials": [
+    {
+      "name": "Mat_Breakable_Grate",
+      "base_color": [
+        0.45,
+        0.15,
+        0.05,
+        1.0
+      ],
+      "metallic": 0.2,
+      "roughness": 0.3,
+      "emission_color": [
+        1.0,
+        0.3,
+        0.05
+      ],
+      "emission_strength": 0.8,
+      "alpha": 1.0
+    },
+    {
+      "name": "Mat_Breakable_Grate.001",
+      "base_color": [
+        0.45,
+        0.15,
+        0.05,
+        1.0
+      ],
+      "metallic": 0.2,
+      "roughness": 0.3,
+      "emission_color": [
+        1.0,
+        0.3,
+        0.05
+      ],
+      "emission_strength": 0.8,
+      "alpha": 1.0
+    },
+    {
+      "name": "Mat_Breakable_Grate.002",
+      "base_color": [
+        0.45,
+        0.15,
+        0.05,
+        1.0
+      ],
+      "metallic": 0.2,
+      "roughness": 0.3,
+      "emission_color": [
+        1.0,
+        0.3,
+        0.05
+      ],
+      "emission_strength": 0.8,
+      "alpha": 1.0
+    },
+    {
+      "name": "Mat_Cable_Dark",
+      "base_color": [
+        0.05,
+        0.05,
+        0.06,
+        1.0
+      ],
+      "metallic": 0.4,
+      "roughness": 0.7,
+      "emission_color": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "emission_strength": 0.0,
+      "alpha": 1.0
+    },
+    {
+      "name": "Mat_Catwalk_Grate",
+      "base_color": [
+        0.2,
+        0.22,
+        0.25,
+        1.0
+      ],
+      "metallic": 0.8,
+      "roughness": 0.5,
+      "emission_color": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "emission_strength": 0.0,
+      "alpha": 1.0
+    },
+    {
+      "name": "Mat_Concrete_Pillar",
+      "base_color": [
+        0.09,
+        0.095,
+        0.105,
+        1.0
+      ],
+      "metallic": 0.2,
+      "roughness": 0.75,
+      "emission_color": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "emission_strength": 0.0,
+      "alpha": 1.0
+    },
+    {
+      "name": "Mat_Concrete_Slab",
+      "base_color": [
+        0.12,
+        0.13,
+        0.14,
+        1.0
+      ],
+      "metallic": 0.1,
+      "roughness": 0.85,
+      "emission_color": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "emission_strength": 0.0,
+      "alpha": 1.0
+    },
+    {
+      "name": "Mat_Concrete_Wall",
+      "base_color": [
+        0.16,
+        0.17,
+        0.19,
+        1.0
+      ],
+      "metallic": 0.1,
+      "roughness": 0.8,
+      "emission_color": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "emission_strength": 0.0,
+      "alpha": 1.0
+    },
+    {
+      "name": "Mat_Crate_Industrial",
+      "base_color": [
+        0.22,
+        0.25,
+        0.2,
+        1.0
+      ],
+      "metallic": 0.4,
+      "roughness": 0.65,
+      "emission_color": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "emission_strength": 0.0,
+      "alpha": 1.0
+    },
+    {
+      "name": "Mat_Emit_Amber_Hazard",
+      "base_color": [
+        1.0,
+        0.6,
+        0.05,
+        1.0
+      ],
+      "metallic": 0.2,
+      "roughness": 0.3,
+      "emission_color": [
+        1.0,
+        0.6,
+        0.05
+      ],
+      "emission_strength": 5.5,
+      "alpha": 1.0
+    },
+    {
+      "name": "Mat_Emit_Cyan_Diegetic",
+      "base_color": [
+        0.05,
+        0.88,
+        1.0,
+        1.0
+      ],
+      "metallic": 0.2,
+      "roughness": 0.3,
+      "emission_color": [
+        0.1,
+        0.9,
+        1.0
+      ],
+      "emission_strength": 6.0,
+      "alpha": 1.0
+    },
+    {
+      "name": "Mat_Emit_Green_Sync",
+      "base_color": [
+        0.1,
+        0.95,
+        0.45,
+        1.0
+      ],
+      "metallic": 0.2,
+      "roughness": 0.3,
+      "emission_color": [
+        0.1,
+        1.0,
+        0.45
+      ],
+      "emission_strength": 5.5,
+      "alpha": 1.0
+    },
+    {
+      "name": "Mat_Emit_Red_NEXUS",
+      "base_color": [
+        1.0,
+        0.08,
+        0.05,
+        1.0
+      ],
+      "metallic": 0.2,
+      "roughness": 0.3,
+      "emission_color": [
+        1.0,
+        0.08,
+        0.05
+      ],
+      "emission_strength": 6.5,
+      "alpha": 1.0
+    },
+    {
+      "name": "Mat_Emit_Red_NEXUS.001",
+      "base_color": [
+        1.0,
+        0.08,
+        0.05,
+        1.0
+      ],
+      "metallic": 0.2,
+      "roughness": 0.3,
+      "emission_color": [
+        1.0,
+        0.08,
+        0.05
+      ],
+      "emission_strength": 6.5,
+      "alpha": 1.0
+    },
+    {
+      "name": "Mat_Emit_Red_NEXUS.002",
+      "base_color": [
+        1.0,
+        0.08,
+        0.05,
+        1.0
+      ],
+      "metallic": 0.2,
+      "roughness": 0.3,
+      "emission_color": [
+        1.0,
+        0.08,
+        0.05
+      ],
+      "emission_strength": 6.5,
+      "alpha": 1.0
+    },
+    {
+      "name": "Mat_Emit_Red_NEXUS.003",
+      "base_color": [
+        1.0,
+        0.08,
+        0.05,
+        1.0
+      ],
+      "metallic": 0.2,
+      "roughness": 0.3,
+      "emission_color": [
+        1.0,
+        0.08,
+        0.05
+      ],
+      "emission_strength": 6.5,
+      "alpha": 1.0
+    },
+    {
+      "name": "Mat_Emit_Red_NEXUS.004",
+      "base_color": [
+        1.0,
+        0.08,
+        0.05,
+        1.0
+      ],
+      "metallic": 0.2,
+      "roughness": 0.3,
+      "emission_color": [
+        1.0,
+        0.08,
+        0.05
+      ],
+      "emission_strength": 6.5,
+      "alpha": 1.0
+    },
+    {
+      "name": "Mat_Glass_Containment",
+      "base_color": [
+        0.08,
+        0.42,
+        0.52,
+        1.0
+      ],
+      "metallic": 0.2,
+      "roughness": 0.15,
+      "emission_color": [
+        0.08,
+        0.5,
+        0.65
+      ],
+      "emission_strength": 1.4,
+      "alpha": 0.45
+    },
+    {
+      "name": "Mat_Holo_Amber_UI",
+      "base_color": [
+        1.0,
+        0.65,
+        0.08,
+        1.0
+      ],
+      "metallic": 0.0,
+      "roughness": 0.2,
+      "emission_color": [
+        1.0,
+        0.65,
+        0.08
+      ],
+      "emission_strength": 4.5,
+      "alpha": 0.88
+    },
+    {
+      "name": "Mat_Holo_Cyan_UI",
+      "base_color": [
+        0.05,
+        0.9,
+        1.0,
+        1.0
+      ],
+      "metallic": 0.0,
+      "roughness": 0.2,
+      "emission_color": [
+        0.05,
+        0.9,
+        1.0
+      ],
+      "emission_strength": 5.0,
+      "alpha": 0.88
+    },
+    {
+      "name": "Mat_Holo_Red_UI",
+      "base_color": [
+        1.0,
+        0.12,
+        0.08,
+        1.0
+      ],
+      "metallic": 0.0,
+      "roughness": 0.2,
+      "emission_color": [
+        1.0,
+        0.12,
+        0.08
+      ],
+      "emission_strength": 5.0,
+      "alpha": 0.88
+    },
+    {
+      "name": "Mat_Puzzle_Circuit_Purple",
+      "base_color": [
+        0.55,
+        0.15,
+        0.95,
+        1.0
+      ],
+      "metallic": 0.2,
+      "roughness": 0.3,
+      "emission_color": [
+        0.7,
+        0.25,
+        1.0
+      ],
+      "emission_strength": 5.5,
+      "alpha": 1.0
+    },
+    {
+      "name": "Mat_Railing_Hazard",
+      "base_color": [
+        0.65,
+        0.45,
+        0.05,
+        1.0
+      ],
+      "metallic": 0.5,
+      "roughness": 0.45,
+      "emission_color": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "emission_strength": 0.0,
+      "alpha": 1.0
+    },
+    {
+      "name": "Mat_Steel_Dark",
+      "base_color": [
+        0.13,
+        0.14,
+        0.16,
+        1.0
+      ],
+      "metallic": 0.85,
+      "roughness": 0.45,
+      "emission_color": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "emission_strength": 0.0,
+      "alpha": 1.0
+    },
+    {
+      "name": "Mat_Steel_Dark.001",
+      "base_color": [
+        0.13,
+        0.14,
+        0.16,
+        1.0
+      ],
+      "metallic": 0.85,
+      "roughness": 0.45,
+      "emission_color": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "emission_strength": 0.0,
+      "alpha": 1.0
+    },
+    {
+      "name": "Mat_Steel_Dark.002",
+      "base_color": [
+        0.13,
+        0.14,
+        0.16,
+        1.0
+      ],
+      "metallic": 0.85,
+      "roughness": 0.45,
+      "emission_color": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "emission_strength": 0.0,
+      "alpha": 1.0
+    },
+    {
+      "name": "Mat_Steel_Dark.003",
+      "base_color": [
+        0.13,
+        0.14,
+        0.16,
+        1.0
+      ],
+      "metallic": 0.85,
+      "roughness": 0.45,
+      "emission_color": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "emission_strength": 0.0,
+      "alpha": 1.0
+    },
+    {
+      "name": "Mat_Steel_Dark.004",
+      "base_color": [
+        0.13,
+        0.14,
+        0.16,
+        1.0
+      ],
+      "metallic": 0.85,
+      "roughness": 0.45,
+      "emission_color": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "emission_strength": 0.0,
+      "alpha": 1.0
+    },
+    {
+      "name": "Mat_Steel_Mid",
+      "base_color": [
+        0.24,
+        0.26,
+        0.29,
+        1.0
+      ],
+      "metallic": 0.8,
+      "roughness": 0.4,
+      "emission_color": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "emission_strength": 0.0,
+      "alpha": 1.0
+    },
+    {
+      "name": "Mat_Steel_Rusted",
+      "base_color": [
+        0.28,
+        0.14,
+        0.08,
+        1.0
+      ],
+      "metallic": 0.65,
+      "roughness": 0.7,
+      "emission_color": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "emission_strength": 0.0,
+      "alpha": 1.0
+    },
+    {
+      "name": "Mat_Steel_Rusted.001",
+      "base_color": [
+        0.28,
+        0.14,
+        0.08,
+        1.0
+      ],
+      "metallic": 0.65,
+      "roughness": 0.7,
+      "emission_color": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "emission_strength": 0.0,
+      "alpha": 1.0
+    },
+    {
+      "name": "Mat_Steel_Rusted.002",
+      "base_color": [
+        0.28,
+        0.14,
+        0.08,
+        1.0
+      ],
+      "metallic": 0.65,
+      "roughness": 0.7,
+      "emission_color": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "emission_strength": 0.0,
+      "alpha": 1.0
+    },
+    {
+      "name": "Mat_Steel_Rusted.003",
+      "base_color": [
+        0.28,
+        0.14,
+        0.08,
+        1.0
+      ],
+      "metallic": 0.65,
+      "roughness": 0.7,
+      "emission_color": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "emission_strength": 0.0,
+      "alpha": 1.0
+    },
+    {
+      "name": "Mat_Steel_Rusted.004",
+      "base_color": [
+        0.28,
+        0.14,
+        0.08,
+        1.0
+      ],
+      "metallic": 0.65,
+      "roughness": 0.7,
+      "emission_color": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "emission_strength": 0.0,
+      "alpha": 1.0
+    },
+    {
+      "name": "Mat_WallRun_Surface",
+      "base_color": [
+        0.45,
+        0.28,
+        0.04,
+        1.0
+      ],
+      "metallic": 0.6,
+      "roughness": 0.35,
+      "emission_color": [
+        0.9,
+        0.45,
+        0.05
+      ],
+      "emission_strength": 0.8,
+      "alpha": 1.0
+    }
+  ]
+}

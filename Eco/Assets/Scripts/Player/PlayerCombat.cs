@@ -144,7 +144,6 @@ namespace Eco.Player
 
         private void HandleImpactInput()
         {
-            if (!HasWeapon) return;
             if (Keyboard.current == null || Cursor.lockState != CursorLockMode.Locked) return;
             if (playerHealth.IsBlocking) return;
 
